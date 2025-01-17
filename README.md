@@ -3,10 +3,10 @@
 ## Entregável 1
 
 **Turma:**
-- Jaqueline M.P.S. | RM359838  
-- Douglas B. | RM360378  
-- Skawinki | RM359870  
 - Danilo S. | RM360100  
+- Douglas B. | RM360378  
+- Jaqueline M.P.S. | RM359838  
+- Skawinki | RM359870  
 
 ---
 
