@@ -45,12 +45,15 @@
 ## Domain Storytelling
 
 - **Realização de pedido e pagamento**
+
 ![image](https://github.com/user-attachments/assets/cf2612ae-fc79-4afe-ac2c-1f287b486547)
 
 - **Preparação e entrega do pedido**
+
 ![image](https://github.com/user-attachments/assets/9c38311a-e87a-45ee-bfa2-6a502cff6eef)
 
 ## Brainstorming
+
 ![image](https://github.com/user-attachments/assets/e3a33918-106b-4882-92a9-a0251c4c65cc)
 
 ![image](https://github.com/user-attachments/assets/1f5dc6e6-b97a-42a9-9843-b52f415f506c)
