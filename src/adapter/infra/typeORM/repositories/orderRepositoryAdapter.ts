@@ -66,7 +66,7 @@ export class OrderRepositoryAdapter implements IOrderRepository {
 
   async findOrder(
     id: number
-  ): Promise<(Order & { orderItems: OrderItems[] }) | null> {
+  ): Promise<(Omit<Order, "items"> & { orderItems: OrderItems[] }) | null> {
     try {
       const order = await this.repository.findOne({
         where: { id },
@@ -79,7 +79,6 @@ export class OrderRepositoryAdapter implements IOrderRepository {
             orderDate: order.orderDate,
             status:
               OrderStatusEnum[order.status as keyof typeof OrderStatusEnum],
-            items: order.items.map((x) => x.id),
             orderItems: order.items,
           }
         : null;
@@ -88,7 +87,7 @@ export class OrderRepositoryAdapter implements IOrderRepository {
     }
   }
 
-  async listOrder(): Promise<Order[] | null> {
+  async listOrder(): Promise<Omit<Order, "items">[] | null> {
     try {
       const orders = await this.repository.find({ relations: ["items"] });
 
@@ -97,7 +96,6 @@ export class OrderRepositoryAdapter implements IOrderRepository {
           id: x.id,
           orderDate: x.orderDate,
           status: OrderStatusEnum[x.status as keyof typeof OrderStatusEnum],
-          items: x.items.map((i) => i.id),
           orderItems: x.items,
         }));
 

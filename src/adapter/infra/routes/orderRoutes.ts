@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { container } from "../config/iocContainer";
-import { UserController } from "../../driver/controllers/userController";
-import cors from "cors";
 import { OrderController } from "../../driver/controllers/orderController";
+import cors from "cors";
 
 const orderRoutes = Router();
 
@@ -30,15 +29,64 @@ const orderController = container.get(OrderController);
  *           schema:
  *             type: object
  *             properties:
- *               productId:
+ *               orderDate:
  *                 type: string
- *               quantity:
- *                 type: number
+ *                 format: date-time
+ *                 example: "2025-01-20T10:00:00.000Z"
+ *               status:
+ *                 type: string
+ *                 enum: [RECEBIDO, PREPARACAO, PRONTO, FINALIZADO]
+ *                 example: "RECEBIDO"
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     productId:
+ *                       type: number
+ *                       example: 1
+ *                     quantity:
+ *                       type: number
+ *                       example: 2
  *     responses:
- *       201:
+ *       200:
  *         description: Pedido criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 response:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: number
+ *                       example: 2
+ *                     orderDate:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-01-20T10:00:00.000Z"
+ *                     orderItems:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: number
+ *                             example: 2
+ *                           quantity:
+ *                             type: number
+ *                             example: 2
+ *                           price:
+ *                             type: string
+ *                             format: decimal
+ *                             example: "55.80"
  *       400:
- *         description: Erro na requisição
+ *         description: Erro de validação na requisição
+ *       404:
+ *         description: Produto não encontrado
+ *       500:
+ *         description: Erro interno do servidor
  */
 orderRoutes.post(
   "/order/create",
@@ -53,13 +101,39 @@ orderRoutes.post(
  *     tags: [Orders]
  *     responses:
  *       200:
- *         description: Lista de pedidos
+ *         description: Lista de pedidos encontrada com sucesso
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Order'
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: number
+ *                     example: 1
+ *                   orderDate:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2025-01-20T10:00:00.000Z"
+ *                   status:
+ *                     type: string
+ *                     example: "RECEBIDO"
+ *                   items:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         productId:
+ *                           type: number
+ *                           example: 1
+ *                         quantity:
+ *                           type: number
+ *                           example: 2
+ *       404:
+ *         description: Nenhum pedido encontrado
+ *       500:
+ *         description: Erro interno do servidor
  */
 orderRoutes.get("/order", orderController.listOrder.bind(orderController));
 

@@ -11,6 +11,6 @@ type CreateOrderRepository = {
 
 export interface IOrderRepository {
   createOrder(order: CreateOrderRepository): Promise<Pick<Order, "id"> | null>;
-  listOrder(): Promise<Order[] | null>;
-  findOrder(id: number): Promise<Order | null>;
+  listOrder(): Promise<Omit<Order, "items">[] | null>;
+  findOrder(id: number): Promise<Omit<Order, "items"> | null>;
 }
