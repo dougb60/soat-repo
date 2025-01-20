@@ -1,9 +1,9 @@
-// src/adapter/infra/server/ExpressServer.ts
 import express, { Express } from "express";
 import { HTTPServer } from "../../../core/applications/ports/HTTPServer";
 import { userRoutes } from "../routes/userRoutes";
 import { productRoutes } from "../routes/productRoutes";
 import { orderRoutes } from "../routes/orderRoutes";
+import { swaggerRouter } from "../middlewares/swaggerMiddleware";
 
 export class ExpressServer implements HTTPServer {
   private app: Express;
@@ -18,6 +18,8 @@ export class ExpressServer implements HTTPServer {
     this.app.use("/soat-api", userRoutes);
     this.app.use("/soat-api", productRoutes);
     this.app.use("/soat-api", orderRoutes);
+
+    this.app.use(swaggerRouter);
   }
 
   async start(port: number): Promise<void> {
@@ -25,6 +27,9 @@ export class ExpressServer implements HTTPServer {
       this.app
         .listen(port, () => {
           console.log(`Server is running on http://localhost:${port}`);
+          console.log(
+            `Swagger docs available at http://localhost:${port}/api-docs`
+          );
           resolve();
         })
         .on("error", reject);

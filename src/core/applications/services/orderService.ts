@@ -17,7 +17,7 @@ export class OrderService {
     orderDate: Date;
     status: OrderStatusEnum;
     items: { productId: number; quantity: number }[];
-  }): Promise<ReturnType<Order | { message: string }>> {
+  }): Promise<ReturnType<Omit<Order, "items"> | { message: string }>> {
     try {
       const { items, orderDate, status } = product;
 
@@ -63,7 +63,9 @@ export class OrderService {
     }
   }
 
-  async listOrder(): Promise<ReturnType<Order[] | { message: string }>> {
+  async listOrder(): Promise<
+    ReturnType<Omit<Order, "items">[] | { message: string }>
+  > {
     try {
       const products = await this.orderRepository.listOrder();
 
