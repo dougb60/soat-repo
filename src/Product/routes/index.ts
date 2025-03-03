@@ -99,7 +99,7 @@ export const productRoutes = (dbConnection: DBConnection<any>): Router => {
         productPresenter
       );
 
-      res.status(response.statusCode).json({ response: response.body });
+      res.status(response.statusCode).json({ ...response.body });
     } catch (error) {
       next(error);
     }
@@ -198,7 +198,7 @@ export const productRoutes = (dbConnection: DBConnection<any>): Router => {
         productPresenter
       );
 
-      res.status(response.statusCode).json({ response: response.body });
+      res.status(response.statusCode).json({ ...response.body });
     } catch (error) {
       next(error);
     }
@@ -257,7 +257,7 @@ export const productRoutes = (dbConnection: DBConnection<any>): Router => {
         productPresenter
       );
 
-      res.status(result.statusCode).json({ response: result.body });
+      res.status(result.statusCode).json({ ...result.body });
     } catch (error) {
       next(error);
     }
