@@ -14,17 +14,23 @@ export class ProductGateway implements ProductRepository {
   constructor(private dbConnection: DBConnection<any>) {}
 
   async create(productData: CreateProductRequestDTO): Promise<Product | null> {
-    const result = await this.dbConnection.save(
-      this.PRODUCT_TABLE_NAME,
-      productData
-    );
+    const { categoryId, description, image, name, price } = productData;
+
+    const result = await this.dbConnection.save(this.PRODUCT_TABLE_NAME, {
+      name,
+      price,
+      image,
+      description,
+      category: { id: categoryId },
+    });
+
     return Product.create(
       result?.id,
       result?.name,
       result?.price,
       result?.description,
       result?.image,
-      result?.category_id
+      result?.category?.id
     );
   }
 
@@ -47,23 +53,26 @@ export class ProductGateway implements ProductRepository {
       result?.price,
       result?.description,
       result?.image,
-      result?.category_id
+      result?.category?.id
     );
   }
 
   async listByCategory(categoryId: number) {
-    const results = await this.dbConnection.findBy(this.PRODUCT_TABLE_NAME, {
-      category_id: categoryId,
-    });
+    const results = await this.dbConnection.findBy(
+      this.PRODUCT_TABLE_NAME,
+      { category_id: categoryId },
+      ["category"]
+    );
+
     return results
       .map((result) =>
         Product.create(
-          result.id,
-          result.name,
-          result.price,
-          result.description,
-          result.image,
-          result.category_id
+          result?.id,
+          result?.name,
+          result?.price,
+          result?.description,
+          result?.image,
+          result?.category?.id
         )
       )
       .filter((product): product is Product => product !== null);
@@ -87,7 +96,7 @@ export class ProductGateway implements ProductRepository {
       result?.price,
       result?.description,
       result?.image,
-      result?.category_id
+      result?.category?.id
     );
   }
 
@@ -95,6 +104,6 @@ export class ProductGateway implements ProductRepository {
     const result = await this.dbConnection.findOne(this.CATEGORY_TABLE_NAME, {
       id: categoryId,
     });
-    return Category.create(result.id, result.name, result.description);
+    return Category.create(result?.id, result?.name, result?.description);
   }
 }

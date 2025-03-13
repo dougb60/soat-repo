@@ -4,7 +4,11 @@ export interface DBConnection<P> {
     tableName: string,
     criteria?: { [K in keyof P]?: P[K] }
   ): Promise<any | null>;
-  findBy(tableName: string, criteria: Record<string, any>): Promise<any[]>;
+  findBy(
+    tableName: string,
+    criteria: Record<string, any>,
+    relations?: string[]
+  ): Promise<any[]>;
   save(tableName: string, entity: any): Promise<any>;
   update(tableName: string, criteria: any, partialEntity: any): Promise<any>;
   delete(tableName: string, criteria: any): Promise<any>;

@@ -100,9 +100,14 @@ export class ProductUseCase {
     repository: ProductRepository
   ): Promise<Product[]> {
     try {
+      const category = await repository.findByCategoryId(categoryId);
+      if (!category) {
+        throw new BusinessError("Categoria não encontrada!", 404);
+      }
+
       const products = await repository.listByCategory(categoryId);
 
-      if (!products) {
+      if (!products || products.length === 0) {
         throw new BusinessError(
           "Nenhum produto encontrado para esta categoria!",
           404

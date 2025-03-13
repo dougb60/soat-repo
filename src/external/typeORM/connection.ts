@@ -17,16 +17,20 @@ export class TypeORMConnection implements DBConnection<any> {
     }
   }
 
-  findOne(tableName: string, criteria?: { [x: string]: any } | undefined) {
+  findOne(tableName: string, criteria: { [x: string]: any }) {
     try {
       const repo = this.getRepo(tableName);
-      return repo.findOneBy({ where: criteria });
+      return repo.findOneBy(criteria);
     } catch (error) {
       throw new DatabaseError("Failed to fetch data from the database", error);
     }
   }
 
-  async findBy(tableName: string, criteria: Record<string, any>) {
+  async findBy(
+    tableName: string,
+    criteria: Record<string, any>,
+    relations: string[]
+  ) {
     try {
       const repo = this.getRepo(tableName);
       const query = repo.createQueryBuilder(tableName);
@@ -34,6 +38,12 @@ export class TypeORMConnection implements DBConnection<any> {
       Object.keys(criteria).forEach((field) => {
         query.andWhere(`${field} = :${field}`, { [field]: criteria[field] });
       });
+
+      if (relations) {
+        relations.forEach((relation) => {
+          query.leftJoinAndSelect(`${tableName}.${relation}`, relation);
+        });
+      }
 
       return query.getMany();
     } catch (error) {

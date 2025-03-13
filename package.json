@@ -6,7 +6,7 @@
   "scripts": {
     "docker-up": "docker compose up --build",
     "docker-down": "docker compose stop",
-    "dev": "tsx watch src/main.ts",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc --build"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "axios": "^1.8.3",
     "cors": "^2.8.5",
     "esbuild-wasm": "^0.24.2",
     "express": "^4.21.2",
