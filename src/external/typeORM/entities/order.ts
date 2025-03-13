@@ -12,6 +12,12 @@ export class OrderEntity {
   @Column("varchar")
   status: string;
 
+  @Column("varchar")
+  code: string;
+
+  @Column("varchar", { default: "PENDING" })
+  paymentStatus: string;
+
   @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.order)
   items: OrderItemEntity[];
 }

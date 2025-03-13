@@ -6,7 +6,7 @@ const swaggerOptions = {
     info: {
       title: "Grupo 54",
       version: "1.0.0",
-      description: "Documentação da API do primeiro desafio",
+      description: "Documentação da API do segundo desafio",
     },
     servers: [
       {

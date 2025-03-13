@@ -1,10 +1,16 @@
 import { Router } from "express";
 import cors from "cors";
 import { OrderController } from "../controllers/OrderController";
-import { CreateOrdertValidator } from "../interfaces/dtos";
+import {
+  CreateOrdertValidator,
+  PaymentWebhookValidator,
+} from "../interfaces/dtos";
 import { OrderJsonPresenter } from "../presenters/orderPresenter";
 import { OrderGateway } from "../gateways/orderGateway";
 import { ProductGateway } from "../../Product/gateways/productGateway";
+import { generateCode } from "../../utils/functions";
+import { z } from "zod";
+import { PaymentGateway } from "../gateways/paymentMock";
 
 export const orderRoutes = (dbConnection: any): Router => {
   const orderRoutes = Router();
@@ -14,6 +20,9 @@ export const orderRoutes = (dbConnection: any): Router => {
   const orderRepository = new OrderGateway(dbConnection);
   const orderPresenter = new OrderJsonPresenter();
   const productRepository = new ProductGateway(dbConnection);
+  const paymentRepository = new PaymentGateway(
+    "http://localhost:3000/order/payment-webhook"
+  );
 
   /**
    * @swagger
@@ -104,10 +113,36 @@ export const orderRoutes = (dbConnection: any): Router => {
   orderRoutes.post("/order/create", async (req, res, next) => {
     try {
       const orderData = CreateOrdertValidator.validate(req.body);
+
       const response = await OrderController.createOrder(
-        orderData,
+        { ...orderData, code: generateCode() },
         orderRepository,
         productRepository,
+        orderPresenter
+      );
+
+      res.status(response.statusCode).json({ ...response.body });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  orderRoutes.put("/order/update-status/:id", async (req, res, next) => {
+    try {
+      const orderId = parseInt(req.params.id, 10);
+      const status = req.body.status;
+      if (!orderId) {
+        throw new z.ZodError([
+          {
+            code: z.ZodIssueCode.custom,
+            message: "Id do item Obrigatório!",
+            path: ["id"],
+          },
+        ]);
+      }
+      const response = await OrderController.updateOrderStatus(
+        { id: orderId, status },
+        orderRepository,
         orderPresenter
       );
 
@@ -178,6 +213,128 @@ export const orderRoutes = (dbConnection: any): Router => {
       );
 
       res.status(response.statusCode).json({ ...response.body });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  orderRoutes.get("/order/payment-status/:code", async (req, res, next) => {
+    try {
+      const orderCode = req.params.code;
+
+      if (!orderCode) {
+        throw new z.ZodError([
+          {
+            code: z.ZodIssueCode.custom,
+            message: "Código do item Obrigatório!",
+            path: ["code"],
+          },
+        ]);
+      }
+
+      const response = await OrderController.getPaymentStatus(
+        orderCode,
+        orderRepository,
+        orderPresenter
+      );
+
+      res.status(response.statusCode).json({ ...response.body });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Rota MOCK para Simular chamada webhook de pagamento
+  orderRoutes.post(
+    "/order/mock-payment-status/:code",
+    async (req, res, next) => {
+      try {
+        const orderCode = req.params.code;
+        const paymentStatus = req.body.status;
+
+        if (!orderCode) {
+          throw new z.ZodError([
+            {
+              code: z.ZodIssueCode.custom,
+              message: "Código do item Obrigatório!",
+              path: ["code"],
+            },
+          ]);
+        }
+
+        const response = await OrderController.executePayment(
+          { code: orderCode, paymentStatus },
+          paymentRepository,
+          orderRepository,
+          orderPresenter
+        );
+        res.status(response.statusCode).json({ ...response.body });
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  /**
+   * @swagger
+   * /order/payment-webhook:
+   *   post:
+   *     summary: Webhook para receber confirmação de pagamento
+   *     tags: [Orders]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               orderId:
+   *                 type: number
+   *                 example: 1
+   *               status:
+   *                 type: string
+   *                 enum: [APPROVED, REJECTED]
+   *                 example: "APPROVED"
+   *               amount:
+   *                 type: number
+   *                 format: float
+   *                 example: 99.90
+   *               transactionId:
+   *                 type: string
+   *                 example: "tx_123456789"
+   *     responses:
+   *       200:
+   *         description: Webhook processado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Webhook processado com sucesso"
+   *                 status:
+   *                   type: string
+   *                   example: "OK"
+   *       400:
+   *         description: Erro de validação na requisição
+   *       404:
+   *         description: Pedido não encontrado
+   *       500:
+   *         description: Erro interno do servidor
+   */
+  orderRoutes.post("/order/payment-webhook", async (req, res, next) => {
+    try {
+      const paymentData = PaymentWebhookValidator.validate(req.body);
+      const response = await OrderController.handlePaymentWebhook(
+        paymentData,
+        orderRepository,
+        orderPresenter
+      );
+
+      res.status(response.statusCode).json({
+        ...response.body,
+      });
     } catch (error) {
       next(error);
     }

@@ -2,8 +2,11 @@ import { Order } from "../entities/order";
 
 import { ProductRepository } from "../../Product/interfaces/repositories";
 import { BusinessError } from "../../utils/errors";
-import { CreateOrderRequestDTO } from "../interfaces/dtos";
-import { OrderRepository } from "../interfaces/repositories";
+import { CreateOrderRequestDTO, PaymentWebhookDTO } from "../interfaces/dtos";
+import {
+  MockPaymentRepository,
+  OrderRepository,
+} from "../interfaces/repositories";
 
 export class OrderUseCase {
   static async createOrder(
@@ -38,6 +41,7 @@ export class OrderUseCase {
         status: orderData.status,
         items: itemsArray,
         totalPrice,
+        code: orderData.code,
       });
     } catch (error) {
       throw error;
@@ -52,7 +56,91 @@ export class OrderUseCase {
         throw new BusinessError("Nenhum pedido encontrado!", 404);
       }
 
-      return orders;
+      const formmattedOrders = orders.filter((order) => {
+        return order.status !== "FINALIZADO";
+      });
+
+      return formmattedOrders;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getPaymentStatus(
+    code: string,
+    repository: OrderRepository
+  ): Promise<Order | null> {
+    try {
+      const order = await repository.findByCode(code);
+
+      if (!order) {
+        throw new BusinessError("Pedido não encontrado!", 404);
+      }
+
+      return order;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async updateOrderStatus(
+    updateData: { id: number; status: string },
+    repository: OrderRepository
+  ) {
+    try {
+      const order = await repository.findOrder(updateData.id);
+
+      if (!order) {
+        throw new BusinessError("Pedido não encontrado!", 404);
+      }
+
+      await repository.updateOrderStatus(updateData.id, updateData.status);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async executePayment(
+    {
+      code,
+      paymentStatus,
+    }: { code: string; paymentStatus: "APPROVED" | "REJECTED" },
+    paymentRepository: MockPaymentRepository,
+    orderRepository: OrderRepository
+  ) {
+    try {
+      const order = await orderRepository.findByCode(code);
+
+      if (!order) {
+        throw new BusinessError("Pedido não encontrado!", 404);
+      }
+
+      paymentRepository.processPayment(order.id, paymentStatus, order.status);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async handlePaymentWebhook(
+    repository: OrderRepository,
+    paymentData: PaymentWebhookDTO
+  ): Promise<void> {
+    try {
+      const { orderId, orderStatus, paymentStatus } = paymentData;
+
+      if (paymentStatus === "REJECTED") {
+        repository.updateOrderStatus(orderId, "FINALIZADO");
+        repository.updatePaymentStatus(orderId, "REJECTED");
+        return;
+      }
+
+      if (paymentStatus === "APPROVED" && orderStatus === "RECEBIDO") {
+        repository.updateOrderStatus(orderId, "PREPARACAO");
+        repository.updatePaymentStatus(orderId, "APPROVED");
+        return;
+      } else {
+        repository.updatePaymentStatus(orderId, "APPROVED");
+      }
     } catch (error) {
       throw error;
     }
