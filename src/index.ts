@@ -3,12 +3,12 @@ import { ExpressServer } from "./api";
 import { AppDataSource } from "./external/typeORM/config";
 import { TypeORMConnection } from "./external/typeORM/connection";
 
+import "dotenv/config";
+
 async function main() {
   try {
     await AppDataSource.initialize();
     console.log("Data base running...");
-    await AppDataSource.runMigrations();
-    console.log("Migrations finished...");
 
     const dbConnection = new TypeORMConnection();
 

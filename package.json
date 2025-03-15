@@ -7,7 +7,8 @@
     "docker-up": "docker compose up --build",
     "docker-down": "docker compose stop",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "k8s:apply": "kubectl apply -f node-configmap.yaml -f mysql-secrets.yaml -f mysql-deployment.yaml -f mysql-service.yaml && kubectl apply -f migrations-job.yaml && kubectl wait --timeout=60s --for=condition=complete job/migrate-job && kubectl apply -f node-deployment.yaml -f node-service.yaml -f node-hpa.yaml"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -22,6 +23,7 @@
   "dependencies": {
     "axios": "^1.8.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "esbuild-wasm": "^0.24.2",
     "express": "^4.21.2",
     "inversify": "^6.2.1",

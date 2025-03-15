@@ -1,0 +1,33 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - refac/clear-architecture # Dispara o CI/CD ao fazer push na branch
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Login no GitHub Container Registry
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      # Build da imagem Docker com o Dockerfile correto
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile.k8s -t ghcr.io/${{ github.repository_owner }}/node-image:latest .
+
+      # Push da imagem Docker
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/node-image:latest
