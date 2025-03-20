@@ -21,6 +21,7 @@ export interface DBConnection<P> {
         direction: "ASC" | "DESC";
         customOrder?: Record<string, number>;
       }[];
+      relations?: string[];
       pagination?: { page: number; pageSize?: number };
     }
   ): Promise<any[]>;

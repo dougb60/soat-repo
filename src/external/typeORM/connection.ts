@@ -91,6 +91,7 @@ export class TypeORMConnection implements DBConnection<any> {
         page: number;
         pageSize?: number;
       };
+      relations?: string[];
     }
   ) {
     try {
@@ -104,6 +105,12 @@ export class TypeORMConnection implements DBConnection<any> {
           query.andWhere(`${tableName}.${field} = :${field}`, {
             [field]: criteria[field],
           });
+        });
+      }
+
+      if (options.relations) {
+        options.relations.forEach((relation) => {
+          query.leftJoinAndSelect(`${tableName}.${relation}`, relation);
         });
       }
 

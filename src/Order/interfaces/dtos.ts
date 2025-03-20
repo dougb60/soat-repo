@@ -7,6 +7,7 @@ export interface CreateOrderRequestDTO {
   items: {
     productId: number;
     quantity: number;
+    price?: number;
   }[];
 }
 
@@ -38,6 +39,7 @@ export const CreateOrdertValidator = {
           z.object({
             productId: z.number(),
             quantity: z.number(),
+            price: z.number().optional(),
           })
         )
         .nonempty("Necessário incluir itens"),

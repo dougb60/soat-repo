@@ -5,6 +5,7 @@ import { OrderRepository } from "../interfaces/repositories";
 
 export class OrderGateway implements OrderRepository {
   private readonly ORDER_TABLE_NAME = "orders";
+  private readonly ORDER_ITEM_TABLE_NAME = "order_items";
   private dbConnection: DBConnection<Order>;
 
   constructor(dbConnection: DBConnection<any>) {
@@ -14,13 +15,29 @@ export class OrderGateway implements OrderRepository {
   async createOrder(
     order: CreateOrderRequestDTO & { totalPrice: number }
   ): Promise<Order | null> {
-    const result = await this.dbConnection.save(this.ORDER_TABLE_NAME, order);
+    const orderData = {
+      orderDate: order.orderDate,
+      status: order.status,
+      code: order.code,
+      paymentStatus: "PENDING",
+      items: order.items.map((item) => ({
+        quantity: item.quantity,
+        price: item.price,
+        product: { id: item.productId },
+      })),
+    };
+
+    const result = await this.dbConnection.save(
+      this.ORDER_TABLE_NAME,
+      orderData
+    );
+
     return Order.create(
       result?.id,
       result?.orderDate,
       result?.status,
       result?.items,
-      result?.totalPrice,
+      order.totalPrice,
       result?.code,
       result?.paymentStatus
     );
@@ -38,21 +55,34 @@ export class OrderGateway implements OrderRepository {
           },
           { field: "orderDate", direction: "ASC" },
         ],
+        relations: ["items"],
       }
     );
 
     return result
-      .map((order) =>
-        Order.create(
+      .map((order) => {
+        console.log(order, "ORDER");
+
+        const items = order.items.map((item: any) => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        }));
+
+        const totalPrice = items.reduce((acc: number, item: any) => {
+          return acc + item.price * item.quantity;
+        }, 0);
+
+        return Order.create(
           order?.id,
           order?.orderDate,
           order?.status,
-          order?.items,
-          order?.totalPrice,
+          items,
+          totalPrice,
           order?.code,
           order?.paymentStatus
-        )
-      )
+        );
+      })
       .filter((order): order is Order => order !== null);
   }
 

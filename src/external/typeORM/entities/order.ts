@@ -18,6 +18,8 @@ export class OrderEntity {
   @Column("varchar", { default: "PENDING" })
   paymentStatus: string;
 
-  @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.order)
+  @OneToMany(() => OrderItemEntity, (orderItem) => orderItem.order, {
+    cascade: true,
+  })
   items: OrderItemEntity[];
 }
