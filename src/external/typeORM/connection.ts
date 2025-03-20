@@ -17,10 +17,15 @@ export class TypeORMConnection implements DBConnection<any> {
     }
   }
 
-  findOne(tableName: string, criteria: { [x: string]: any }) {
+  findOne(
+    tableName: string,
+    criteria: { [x: string]: any },
+    relations?: string[]
+  ) {
     try {
       const repo = this.getRepo(tableName);
-      return repo.findOneBy(criteria);
+
+      return repo.findOne({ where: criteria, relations });
     } catch (error) {
       throw new DatabaseError("Failed to fetch data from the database", error);
     }

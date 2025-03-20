@@ -131,12 +131,23 @@ export const orderRoutes = (dbConnection: any): Router => {
     try {
       const orderId = parseInt(req.params.id, 10);
       const status = req.body.status;
+      const validStatus = ["RECEBIDO", "PREPARACAO", "PRONTO", "FINALIZADO"];
       if (!orderId) {
         throw new z.ZodError([
           {
             code: z.ZodIssueCode.custom,
             message: "Id do item Obrigatório!",
             path: ["id"],
+          },
+        ]);
+      }
+
+      if (!validStatus.includes(status)) {
+        throw new z.ZodError([
+          {
+            code: z.ZodIssueCode.custom,
+            message: "Status inválido!",
+            path: ["status"],
           },
         ]);
       }

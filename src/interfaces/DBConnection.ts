@@ -2,7 +2,8 @@ export interface DBConnection<P> {
   findAll(tableName: string): Promise<any[]>;
   findOne(
     tableName: string,
-    criteria?: { [K in keyof P]?: P[K] }
+    criteria?: { [K in keyof P]?: P[K] },
+    relations?: string[]
   ): Promise<any | null>;
   findBy(
     tableName: string,

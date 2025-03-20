@@ -61,8 +61,6 @@ export class OrderGateway implements OrderRepository {
 
     return result
       .map((order) => {
-        console.log(order, "ORDER");
-
         const items = order.items.map((item: any) => ({
           productId: item.id,
           quantity: item.quantity,
@@ -87,16 +85,30 @@ export class OrderGateway implements OrderRepository {
   }
 
   async findOrder(id: number): Promise<Order | null> {
-    const result = await this.dbConnection.findOne(this.ORDER_TABLE_NAME, {
-      id,
-    });
+    const result = await this.dbConnection.findOne(
+      this.ORDER_TABLE_NAME,
+      {
+        id,
+      },
+      ["items"]
+    );
+
+    const items = result?.items.map((item: any) => ({
+      productId: item.id,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
+    const totalPrice = items.reduce((acc: number, item: any) => {
+      return acc + item.price * item.quantity;
+    }, 0);
 
     return Order.create(
       result?.id,
       result?.orderDate,
       result?.status,
-      result?.items,
-      result?.totalPrice,
+      items,
+      totalPrice,
       result?.code,
       result?.paymentStatus
     );
