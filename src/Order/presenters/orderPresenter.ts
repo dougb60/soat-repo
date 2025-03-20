@@ -18,7 +18,7 @@ export class OrderJsonPresenter
   }
 
   toResponse(
-    data: (Order & { totalPrice: number }) | null,
+    data: (Order & { totalPrice: number }) | null | any,
     message?: string,
     isCreated?: boolean
   ): APIResponse<OrderResponseDTO> {

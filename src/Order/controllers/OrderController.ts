@@ -19,6 +19,7 @@ export class OrderController {
       repository,
       productRepository
     );
+
     return presenter.toResponse(order, "Pedido criado com sucesso", true);
   }
 
@@ -42,7 +43,7 @@ export class OrderController {
       );
 
       return presenter.toResponse(
-        orderPaymentStatus,
+        { paymentStatus: orderPaymentStatus?.paymentStatus },
         "Status do pagamento obtido com sucesso"
       );
     } catch (error) {
