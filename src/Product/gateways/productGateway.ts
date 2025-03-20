@@ -42,7 +42,8 @@ export class ProductGateway implements ProductRepository {
       { id: productData.id },
       { id, description, image, name, price, category: { id: categoryId } }
     );
-    return result ? await this.findById(productData.id) : null;
+
+    return result ? await this.findById(productData.id, categoryId) : null;
   }
 
   async findById(

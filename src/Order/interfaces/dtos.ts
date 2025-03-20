@@ -16,6 +16,8 @@ export interface OrderResponseDTO {
   status: string;
   items: { productId: number; quantity: number }[];
   totalPrice: number;
+  code: string;
+  paymentStatus: string;
 }
 
 export interface PaymentWebhookDTO {

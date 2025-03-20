@@ -12,6 +12,8 @@ export class OrderJsonPresenter
       status: order.status,
       items: order.items,
       totalPrice: order.totalPrice,
+      code: order.code,
+      paymentStatus: order.paymentStatus,
     };
   }
 

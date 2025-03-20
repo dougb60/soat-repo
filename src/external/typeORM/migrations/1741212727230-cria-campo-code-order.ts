@@ -9,7 +9,7 @@ export class CriaCampoCodeOrder1741212727230 implements MigrationInterface {
         isNullable: true,
       }),
       new TableColumn({
-        name: "payment_status",
+        name: "paymentStatus",
         type: "varchar",
         isNullable: false,
         default: "'PENDING'",
@@ -19,6 +19,6 @@ export class CriaCampoCodeOrder1741212727230 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropColumn("orders", "code");
-    await queryRunner.dropColumn("orders", "payment_status");
+    await queryRunner.dropColumn("orders", "paymentStatus");
   }
 }
