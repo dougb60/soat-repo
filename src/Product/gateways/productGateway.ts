@@ -35,25 +35,31 @@ export class ProductGateway implements ProductRepository {
   }
 
   async update(productData: UpdateProductRequestDTO): Promise<Product | null> {
+    const { id, categoryId, description, image, name, price } = productData;
+
     const result = await this.dbConnection.update(
       this.PRODUCT_TABLE_NAME,
       { id: productData.id },
-      productData
+      { id, description, image, name, price, category: { id: categoryId } }
     );
     return result ? await this.findById(productData.id) : null;
   }
 
-  async findById(productId: number): Promise<Product | null> {
+  async findById(
+    productId: number,
+    categoryId?: number
+  ): Promise<Product | null> {
     const result = await this.dbConnection.findOne(this.PRODUCT_TABLE_NAME, {
       id: productId,
     });
+
     return Product.create(
       result?.id,
       result?.name,
       result?.price,
       result?.description,
       result?.image,
-      result?.category?.id
+      categoryId ?? 1
     );
   }
 
@@ -86,17 +92,18 @@ export class ProductGateway implements ProductRepository {
     return result.affected;
   }
 
-  async findByName(name: string): Promise<Product | null> {
+  async findByName(name: string, productId: number): Promise<Product | null> {
     const result = await this.dbConnection.findOne(this.PRODUCT_TABLE_NAME, {
       name,
     });
+
     return Product.create(
       result?.id,
       result?.name,
       result?.price,
       result?.description,
       result?.image,
-      result?.category?.id
+      productId
     );
   }
 

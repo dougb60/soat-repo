@@ -20,10 +20,16 @@ export class ProductUseCase {
         throw new BusinessError("Categoria não encontrada!", 404);
       }
 
-      const existingProduct = await repository.findByName(productData.name);
+      const existingProduct = await repository.findByName(
+        productData.name,
+        productData.categoryId
+      );
 
       if (existingProduct) {
-        throw new BusinessError("Produto já existe!", 400);
+        throw new BusinessError(
+          `Produto já esta cadastrado: ID: ${existingProduct.id}!`,
+          400
+        );
       }
 
       const product = await repository.create(productData);
@@ -43,7 +49,10 @@ export class ProductUseCase {
     repository: ProductRepository
   ): Promise<Product> {
     try {
-      const existingProduct = await repository.findById(productData.id);
+      const existingProduct = await repository.findById(
+        productData.id,
+        productData.categoryId ?? 1
+      );
 
       if (!existingProduct) {
         throw new BusinessError("Produto não encontrado!", 404);

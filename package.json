@@ -8,7 +8,8 @@
     "docker-down": "docker compose stop",
     "dev": "tsx watch src/index.ts",
     "build": "tsc --build",
-    "k8s:apply": "kubectl apply -f node-configmap.yaml -f mysql-secrets.yaml -f mysql-deployment.yaml -f mysql-service.yaml && kubectl apply -f migrations-job.yaml && kubectl wait --timeout=60s --for=condition=complete job/migrate-job && kubectl apply -f node-deployment.yaml -f node-service.yaml -f node-hpa.yaml"
+    "k8s:apply": "kubectl delete job migrate-job --ignore-not-found=true && kubectl apply -f node-configmap.yaml -f mysql-secrets.yaml -f mysql-deployment.yaml -f mysql-service.yaml && kubectl apply -f migrations-job.yaml && kubectl wait --timeout=60s --for=condition=complete job/migrate-job && kubectl apply -f node-deployment.yaml -f node-service.yaml -f node-hpa.yaml",
+    "k8s:run": "yarn k8s:apply && echo 'serviço disponível em http://localhost:3002/' && sudo minikube tunnel"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
