@@ -67,7 +67,7 @@ export class OrderGateway implements OrderRepository {
           price: item.price,
         }));
 
-        const totalPrice = items.reduce((acc: number, item: any) => {
+        const totalPrice = items?.reduce((acc: number, item: any) => {
           return acc + item.price * item.quantity;
         }, 0);
 
@@ -99,7 +99,7 @@ export class OrderGateway implements OrderRepository {
       price: item.price,
     }));
 
-    const totalPrice = items.reduce((acc: number, item: any) => {
+    const totalPrice = items?.reduce((acc: number, item: any) => {
       return acc + item.price * item.quantity;
     }, 0);
 
@@ -129,7 +129,7 @@ export class OrderGateway implements OrderRepository {
       price: item.price,
     }));
 
-    const totalPrice = items.reduce((acc: number, item: any) => {
+    const totalPrice = items?.reduce((acc: number, item: any) => {
       return acc + item.price * item.quantity;
     }, 0);
 

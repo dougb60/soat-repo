@@ -17,5 +17,5 @@ export interface MockPaymentRepository {
     orderId: number,
     paymentStatus: string,
     orderStatus: string
-  ): Promise<void>;
+  ): Promise<{ success: boolean; message: string }>;
 }

@@ -89,7 +89,7 @@ export class OrderController {
 
       return presenter.toResponse(
         null,
-        `Pagamento do pedido ${code} realizado com sucesso`
+        `Requisição de pagamento do pedido ${code} realizado com sucesso`
       );
     } catch (error) {
       throw error;

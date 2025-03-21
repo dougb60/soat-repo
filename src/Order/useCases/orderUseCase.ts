@@ -115,7 +115,17 @@ export class OrderUseCase {
         throw new BusinessError("Pedido não encontrado!", 404);
       }
 
-      paymentRepository.processPayment(order.id, paymentStatus, order.status);
+      const messageReturn = await paymentRepository.processPayment(
+        order.id,
+        paymentStatus,
+        order.status
+      );
+
+      if (!messageReturn.success) {
+        throw new BusinessError(messageReturn.message, 400);
+      }
+
+      return messageReturn;
     } catch (error) {
       throw error;
     }

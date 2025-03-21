@@ -12,18 +12,24 @@ export class PaymentGateway implements MockPaymentRepository {
   async processPayment(
     orderId: number,
     paymentStatus: "APPROVED" | "REJECTED",
-    orderStatus: "RECEBIDO" | "PREPARACAO" | "PRONTO" | "FINALIZADO"
-  ): Promise<void> {
+    orderStatus: string
+  ) {
     try {
-      setTimeout(async () => {
-        await axios.post(this.webhookUrl, {
-          orderId,
-          paymentStatus,
-          orderStatus,
-        });
-      }, 2000);
-    } catch (error) {
-      throw new BusinessError("Erro ao processar pagamento", 400);
+      await axios.post(this.webhookUrl, {
+        orderId,
+        paymentStatus,
+        orderStatus,
+      });
+
+      return {
+        success: true,
+        message: "Requisição de pagamento realizada com sucesso",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: "Erro ao requisitar pagamento",
+      };
     }
   }
 }

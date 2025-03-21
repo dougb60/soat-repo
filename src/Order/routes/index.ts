@@ -21,7 +21,7 @@ export const orderRoutes = (dbConnection: any): Router => {
   const orderPresenter = new OrderJsonPresenter();
   const productRepository = new ProductGateway(dbConnection);
   const paymentRepository = new PaymentGateway(
-    "http://localhost:3000/order/payment-webhook"
+    "http://localhost:3000/soat-api//payment-webhook"
   );
 
   /**
@@ -263,6 +263,8 @@ export const orderRoutes = (dbConnection: any): Router => {
         const orderCode = req.params.code;
         const paymentStatus = req.body.status;
 
+        const validPaymentStatus = ["APPROVED", "REJECTED"];
+
         if (!orderCode) {
           throw new z.ZodError([
             {
@@ -273,13 +275,22 @@ export const orderRoutes = (dbConnection: any): Router => {
           ]);
         }
 
+        if (!validPaymentStatus.includes(paymentStatus)) {
+          throw new z.ZodError([
+            {
+              code: z.ZodIssueCode.custom,
+              message: "Status inválido!",
+              path: ["status"],
+            },
+          ]);
+        }
         const response = await OrderController.executePayment(
           { code: orderCode, paymentStatus },
           paymentRepository,
           orderRepository,
           orderPresenter
         );
-        res.status(response.statusCode).json({ ...response.body });
+        res.status(response?.statusCode || 200).json({ ...response?.body });
       } catch (error) {
         next(error);
       }
@@ -343,8 +354,8 @@ export const orderRoutes = (dbConnection: any): Router => {
         orderPresenter
       );
 
-      res.status(response.statusCode).json({
-        ...response.body,
+      res.status(response?.statusCode ?? 200).json({
+        ...response?.body,
       });
     } catch (error) {
       next(error);
