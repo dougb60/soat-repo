@@ -3,7 +3,7 @@ name: Docker Build and Push
 on:
   push:
     branches:
-      - refac/clear-architecture # Dispara o CI/CD ao fazer push na branch
+      - main # Dispara o CI/CD ao fazer push na branch
 
 jobs:
   build-and-push:

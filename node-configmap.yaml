@@ -7,3 +7,4 @@ data:
   MYSQL_PORT: "3306"
   MYSQL_DATABASE: "soat_desafio"
   NODE_ENV: "development"
+  WEBHOOK_URL: "http://node-service:3002/soat-api/order/payment-webhook"

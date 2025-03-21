@@ -26,6 +26,8 @@ export class PaymentGateway implements MockPaymentRepository {
         message: "Requisição de pagamento realizada com sucesso",
       };
     } catch (error: any) {
+      console.log(error, "Erro Axios");
+
       return {
         success: false,
         message: "Erro ao requisitar pagamento",
