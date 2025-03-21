@@ -51,7 +51,7 @@ export class OrderGateway implements OrderRepository {
           {
             field: "status",
             direction: "ASC",
-            customOrder: { PRONTO: 1, EM_PREPARACAO: 2, RECEBIDO: 3 },
+            customOrder: { PRONTO: 1, PREPARACAO: 2, RECEBIDO: 3 },
           },
           { field: "orderDate", direction: "ASC" },
         ],

@@ -21,7 +21,7 @@ export const orderRoutes = (dbConnection: any): Router => {
   const orderPresenter = new OrderJsonPresenter();
   const productRepository = new ProductGateway(dbConnection);
   const paymentRepository = new PaymentGateway(
-    "http://localhost:3000/soat-api//payment-webhook"
+    "http://localhost:3002/soat-api/order/payment-webhook"
   );
 
   /**
@@ -127,6 +127,50 @@ export const orderRoutes = (dbConnection: any): Router => {
     }
   });
 
+  /**
+   * @swagger
+   * /order/update-status/{id}:
+   *   put:
+   *     summary: Atualiza o status de um pedido
+   *     tags: [Orders]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         description: ID do pedido a ser atualizado
+   *         schema:
+   *           type: integer
+   *           example: 1
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               status:
+   *                 type: string
+   *                 enum: [RECEBIDO, PREPARACAO, PRONTO, FINALIZADO]
+   *                 example: "PREPARACAO"
+   *     responses:
+   *       200:
+   *         description: Status do pedido atualizado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Status do pedido atualizado com sucesso"
+   *       400:
+   *         description: Erro de validação
+   *       404:
+   *         description: Pedido não encontrado
+   *       500:
+   *         description: Erro interno do servidor
+   */
+
   orderRoutes.put("/order/update-status/:id", async (req, res, next) => {
     try {
       const orderId = parseInt(req.params.id, 10);
@@ -229,6 +273,46 @@ export const orderRoutes = (dbConnection: any): Router => {
     }
   });
 
+  /**
+   * @swagger
+   * /order/payment-status/{code}:
+   *   get:
+   *     summary: Verifica o status de pagamento de um pedido
+   *     tags: [Orders]
+   *     parameters:
+   *       - in: path
+   *         name: code
+   *         required: true
+   *         description: Código único do pedido
+   *         schema:
+   *           type: string
+   *           example: "ORD12345"
+   *     responses:
+   *       200:
+   *         description: Status do pagamento obtido com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Status do pagamento obtido com sucesso"
+   *                 response:
+   *                   type: object
+   *                   properties:
+   *                     paymentStatus:
+   *                       type: string
+   *                       enum: [PENDING, APPROVED, REJECTED]
+   *                       example: "APPROVED"
+   *       400:
+   *         description: Código do pedido inválido
+   *       404:
+   *         description: Pedido não encontrado
+   *       500:
+   *         description: Erro interno do servidor
+   */
+
   orderRoutes.get("/order/payment-status/:code", async (req, res, next) => {
     try {
       const orderCode = req.params.code;
@@ -256,6 +340,51 @@ export const orderRoutes = (dbConnection: any): Router => {
   });
 
   // Rota MOCK para Simular chamada webhook de pagamento
+
+  /**
+   * @swagger
+   * /order/mock-payment-status/{code}:
+   *   post:
+   *     summary: Simula uma resposta de pagamento (apenas para testes)
+   *     tags: [Orders]
+   *     parameters:
+   *       - in: path
+   *         name: code
+   *         required: true
+   *         description: Código único do pedido
+   *         schema:
+   *           type: string
+   *           example: "ORD12345"
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               status:
+   *                 type: string
+   *                 enum: [APPROVED, REJECTED]
+   *                 example: "APPROVED"
+   *     responses:
+   *       200:
+   *         description: Requisição de pagamento processada com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Requisição de pagamento do pedido ORD12345 realizado com sucesso"
+   *       400:
+   *         description: Erro de validação
+   *       404:
+   *         description: Pedido não encontrado
+   *       500:
+   *         description: Erro interno do servidor
+   */
+
   orderRoutes.post(
     "/order/mock-payment-status/:code",
     async (req, res, next) => {
